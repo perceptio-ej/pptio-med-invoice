@@ -1,0 +1,163 @@
+-- Configuración de homologaciones respaldada por el DDI de Facturación TrakCare–SAP.
+-- Esquema propietario de las tablas compartidas:
+--   PPTIO_MED_DB_SCHEMA_MGR
+--
+-- Este script solo carga equivalencias que aparecen expresamente en el DDI.
+-- No crea códigos de sede TrakCare ni códigos de tipo de servicio que el documento
+-- todavía no define.
+
+-- ================================================================
+-- 1. CONTEXTOS
+-- ================================================================
+
+UPSERT "PPTIO_MED_DB_SCHEMA_MGR"."HOMOLOGATION_CONTEXT"
+  ("ID", "CONTEXT", "DESCRIPTION")
+VALUES
+  ('10000000-0000-4000-8000-000000000001', 'DISTRIBUTION_CHANNEL', 'Área de atención TrakCare a canal de distribución SAP')
+WITH PRIMARY KEY;
+
+UPSERT "PPTIO_MED_DB_SCHEMA_MGR"."HOMOLOGATION_CONTEXT"
+  ("ID", "CONTEXT", "DESCRIPTION")
+VALUES
+  ('10000000-0000-4000-8000-000000000002', 'SALES_OFFICE', 'Código de sede TrakCare a oficina de ventas SAP')
+WITH PRIMARY KEY;
+
+UPSERT "PPTIO_MED_DB_SCHEMA_MGR"."HOMOLOGATION_CONTEXT"
+  ("ID", "CONTEXT", "DESCRIPTION")
+VALUES
+  ('10000000-0000-4000-8000-000000000003', 'SEGMENT', 'Segmento a MVKE-MVGR3')
+WITH PRIMARY KEY;
+
+UPSERT "PPTIO_MED_DB_SCHEMA_MGR"."HOMOLOGATION_CONTEXT"
+  ("ID", "CONTEXT", "DESCRIPTION")
+VALUES
+  ('10000000-0000-4000-8000-000000000004', 'STRATEGIC_LINE', 'Línea estratégica a MVKE-MVGR4')
+WITH PRIMARY KEY;
+
+UPSERT "PPTIO_MED_DB_SCHEMA_MGR"."HOMOLOGATION_CONTEXT"
+  ("ID", "CONTEXT", "DESCRIPTION")
+VALUES
+  ('10000000-0000-4000-8000-000000000005', 'SERVICE_TYPE', 'Tipo de servicio a MVKE-MVGR5; códigos pendientes de definición funcional')
+WITH PRIMARY KEY;
+
+-- ================================================================
+-- 2. ÁREA DE ATENCIÓN → CANAL DE DISTRIBUCIÓN SAP
+-- ================================================================
+
+UPSERT "PPTIO_MED_DB_SCHEMA_MGR"."HOMOLOGATION_MAP"
+  ("ID", "CONTEXT", "SOURCE_SYSTEM", "SOURCE_KEY", "TARGET_SYSTEM", "TARGET_KEY", "DESCRIPTION")
+VALUES
+  ('20000000-0000-4000-8000-000000000001', 'DISTRIBUTION_CHANNEL', 'TRAKCARE', 'AMBULATORIO', 'SAP_SD', '10', 'Área de ventas Ambulatorio')
+WITH PRIMARY KEY;
+
+UPSERT "PPTIO_MED_DB_SCHEMA_MGR"."HOMOLOGATION_MAP"
+  ("ID", "CONTEXT", "SOURCE_SYSTEM", "SOURCE_KEY", "TARGET_SYSTEM", "TARGET_KEY", "DESCRIPTION")
+VALUES
+  ('20000000-0000-4000-8000-000000000002', 'DISTRIBUTION_CHANNEL', 'TRAKCARE', 'URGENCIAS', 'SAP_SD', '11', 'Área de ventas Urgencias')
+WITH PRIMARY KEY;
+
+UPSERT "PPTIO_MED_DB_SCHEMA_MGR"."HOMOLOGATION_MAP"
+  ("ID", "CONTEXT", "SOURCE_SYSTEM", "SOURCE_KEY", "TARGET_SYSTEM", "TARGET_KEY", "DESCRIPTION")
+VALUES
+  ('20000000-0000-4000-8000-000000000003', 'DISTRIBUTION_CHANNEL', 'TRAKCARE', 'HOSPITALARIO', 'SAP_SD', '12', 'Área de ventas Hospitalario')
+WITH PRIMARY KEY;
+
+-- ================================================================
+-- 3. SEGMENTO → MVKE-MVGR3
+-- ================================================================
+
+UPSERT "PPTIO_MED_DB_SCHEMA_MGR"."HOMOLOGATION_MAP"
+  ("ID", "CONTEXT", "SOURCE_SYSTEM", "SOURCE_KEY", "TARGET_SYSTEM", "TARGET_KEY", "DESCRIPTION")
+VALUES
+  ('20000000-0000-4000-8000-000000000004', 'SEGMENT', 'TRAKCARE', 'PBS', 'SAP_SD', '01', 'PBS')
+WITH PRIMARY KEY;
+
+UPSERT "PPTIO_MED_DB_SCHEMA_MGR"."HOMOLOGATION_MAP"
+  ("ID", "CONTEXT", "SOURCE_SYSTEM", "SOURCE_KEY", "TARGET_SYSTEM", "TARGET_KEY", "DESCRIPTION")
+VALUES
+  ('20000000-0000-4000-8000-000000000005', 'SEGMENT', 'TRAKCARE', 'PRIVADO', 'SAP_SD', '02', 'Privado')
+WITH PRIMARY KEY;
+
+UPSERT "PPTIO_MED_DB_SCHEMA_MGR"."HOMOLOGATION_MAP"
+  ("ID", "CONTEXT", "SOURCE_SYSTEM", "SOURCE_KEY", "TARGET_SYSTEM", "TARGET_KEY", "DESCRIPTION")
+VALUES
+  ('20000000-0000-4000-8000-000000000006', 'SEGMENT', 'TRAKCARE', 'ESTADO', 'SAP_SD', '03', 'Estado')
+WITH PRIMARY KEY;
+
+UPSERT "PPTIO_MED_DB_SCHEMA_MGR"."HOMOLOGATION_MAP"
+  ("ID", "CONTEXT", "SOURCE_SYSTEM", "SOURCE_KEY", "TARGET_SYSTEM", "TARGET_KEY", "DESCRIPTION")
+VALUES
+  ('20000000-0000-4000-8000-000000000007', 'SEGMENT', 'TRAKCARE', 'SOCIAL FCI', 'SAP_SD', '04', 'Social FCI')
+WITH PRIMARY KEY;
+
+UPSERT "PPTIO_MED_DB_SCHEMA_MGR"."HOMOLOGATION_MAP"
+  ("ID", "CONTEXT", "SOURCE_SYSTEM", "SOURCE_KEY", "TARGET_SYSTEM", "TARGET_KEY", "DESCRIPTION")
+VALUES
+  ('20000000-0000-4000-8000-000000000008', 'SEGMENT', 'TRAKCARE', 'SOAT', 'SAP_SD', '05', 'SOAT')
+WITH PRIMARY KEY;
+
+UPSERT "PPTIO_MED_DB_SCHEMA_MGR"."HOMOLOGATION_MAP"
+  ("ID", "CONTEXT", "SOURCE_SYSTEM", "SOURCE_KEY", "TARGET_SYSTEM", "TARGET_KEY", "DESCRIPTION")
+VALUES
+  ('20000000-0000-4000-8000-000000000009', 'SEGMENT', 'TRAKCARE', 'ARL', 'SAP_SD', '06', 'ARL')
+WITH PRIMARY KEY;
+
+UPSERT "PPTIO_MED_DB_SCHEMA_MGR"."HOMOLOGATION_MAP"
+  ("ID", "CONTEXT", "SOURCE_SYSTEM", "SOURCE_KEY", "TARGET_SYSTEM", "TARGET_KEY", "DESCRIPTION")
+VALUES
+  ('20000000-0000-4000-8000-000000000010', 'SEGMENT', 'TRAKCARE', 'INTERNACIONAL', 'SAP_SD', '07', 'Internacional')
+WITH PRIMARY KEY;
+
+-- ================================================================
+-- 4. LÍNEA ESTRATÉGICA → MVKE-MVGR4
+-- ================================================================
+
+UPSERT "PPTIO_MED_DB_SCHEMA_MGR"."HOMOLOGATION_MAP"
+  ("ID", "CONTEXT", "SOURCE_SYSTEM", "SOURCE_KEY", "TARGET_SYSTEM", "TARGET_KEY", "DESCRIPTION")
+VALUES
+  ('20000000-0000-4000-8000-000000000011', 'STRATEGIC_LINE', 'TRAKCARE', 'TX', 'SAP_SD', '01', 'Trasplantes')
+WITH PRIMARY KEY;
+
+UPSERT "PPTIO_MED_DB_SCHEMA_MGR"."HOMOLOGATION_MAP"
+  ("ID", "CONTEXT", "SOURCE_SYSTEM", "SOURCE_KEY", "TARGET_SYSTEM", "TARGET_KEY", "DESCRIPTION")
+VALUES
+  ('20000000-0000-4000-8000-000000000012', 'STRATEGIC_LINE', 'TRAKCARE', 'MD', 'SAP_SD', '02', 'Médica')
+WITH PRIMARY KEY;
+
+UPSERT "PPTIO_MED_DB_SCHEMA_MGR"."HOMOLOGATION_MAP"
+  ("ID", "CONTEXT", "SOURCE_SYSTEM", "SOURCE_KEY", "TARGET_SYSTEM", "TARGET_KEY", "DESCRIPTION")
+VALUES
+  ('20000000-0000-4000-8000-000000000013', 'STRATEGIC_LINE', 'TRAKCARE', 'CV', 'SAP_SD', '03', 'Cardiovascular')
+WITH PRIMARY KEY;
+
+UPSERT "PPTIO_MED_DB_SCHEMA_MGR"."HOMOLOGATION_MAP"
+  ("ID", "CONTEXT", "SOURCE_SYSTEM", "SOURCE_KEY", "TARGET_SYSTEM", "TARGET_KEY", "DESCRIPTION")
+VALUES
+  ('20000000-0000-4000-8000-000000000014', 'STRATEGIC_LINE', 'TRAKCARE', 'QX', 'SAP_SD', '04', 'Quirúrgica')
+WITH PRIMARY KEY;
+
+-- ================================================================
+-- 5. SEDE TRAKCARE → OFICINA DE VENTAS SAP
+-- ================================================================
+-- El DDI define las oficinas SAP, pero no especifica los códigos de sede que
+-- enviará TrakCare. Crear estas filas únicamente cuando el equipo funcional
+-- confirme SOURCE_KEY. No reemplazar los marcadores sin aprobación.
+--
+-- Oficina SAP 1001: Fundación Cardio 163 Norte
+-- Oficina SAP 1002: Fundación Cardio 163 Sur
+-- Oficina SAP 1003: Fundación Cardio 102
+--
+-- Ejemplo de plantilla, NO ejecutable hasta reemplazar los marcadores:
+--
+-- UPSERT "PPTIO_MED_DB_SCHEMA_MGR"."HOMOLOGATION_MAP"
+--   ("ID", "CONTEXT", "SOURCE_SYSTEM", "SOURCE_KEY", "TARGET_SYSTEM", "TARGET_KEY", "DESCRIPTION")
+-- VALUES
+--   ('<UUID>', 'SALES_OFFICE', 'TRAKCARE', '<CODIGO_SEDE_TRAKCARE>', 'SAP_SD', '1001', 'Fundación Cardio 163 Norte')
+-- WITH PRIMARY KEY;
+
+-- ================================================================
+-- 6. TIPO DE SERVICIO → MVKE-MVGR5
+-- ================================================================
+-- El DDI menciona CHEQUEO e INTERNACIONAL, pero no define TARGET_KEY SAP.
+-- El servicio solo aplicará esta homologación si se cargan equivalencias
+-- aprobadas. Hasta entonces conservará serviceType como fue recibido.

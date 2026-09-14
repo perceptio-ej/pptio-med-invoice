@@ -1,0 +1,63 @@
+_schema-version: "3.1"
+ID: pptio-med-invoice
+version: 1.0.0
+description: "Medical Invoice Integration — TrakCare to SAP S/4HANA"
+
+modules:
+  - name: pptio-med-invoice-srv
+    type: nodejs
+    path: .
+    parameters:
+      memory: 256M
+      disk-quota: 512M
+    build-parameters:
+      builder: npm
+      build-result: gen/srv
+    requires:
+      - name: pptio-med-invoice-hdi
+      - name: pptio-med-db-schema-mgr-hdi
+      - name: pptio-med-invoice-xsuaa
+    provides:
+      - name: pptio-med-invoice-api
+        properties:
+          srv-url: ${default-url}
+
+  - name: pptio-med-invoice-db-deployer
+    type: com.sap.xs.hdi
+    path: db
+    parameters:
+      buildpack: nodejs_buildpack
+    requires:
+      - name: pptio-med-invoice-hdi
+        properties:
+          TARGET_CONTAINER: ~{hdi-service-name}
+      - name: pptio-med-db-schema-mgr-hdi
+
+resources:
+  - name: pptio-med-invoice-hdi
+    type: com.sap.xs.hdi-container
+    parameters:
+      service: hana
+      service-plan: hdi-shared
+    properties:
+      hdi-service-name: ${service-name}
+
+  - name: pptio-med-db-schema-mgr-hdi
+    type: org.cloudfoundry.existing-service
+    parameters:
+      service-name: pptio-med-db-schema-mgr-hdi
+
+  - name: pptio-med-invoice-xsuaa
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service: xsuaa
+      service-plan: application
+      path: ./xs-security.json
+
+
+build-parameters:
+  before-all:
+    - builder: custom
+      commands:
+        - npm install
+        - npx cds build --production

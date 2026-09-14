@@ -1,0 +1,24 @@
+{
+  "name": "pptio-med-invoice",
+  "version": "1.0.0",
+  "description": "CAP service for receiving TrakCare medical invoices and enqueueing SAP sales order integration messages.",
+  "dependencies": {
+    "@cap-js/hana": "^2",
+    "@sap/cds": "^9",
+    "@sap/xssec": "^4"
+  },
+  "devDependencies": {
+    "@cap-js/sqlite": "^2.4",
+    "@sap/cds-dk": "9.9.3"
+  },
+  "scripts": {
+    "start": "cds-serve",
+    "watch": "cds watch",
+    "build": "cds build --production",
+    "test:compile": "cdsc srv/invoice-api.cds"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "private": true
+}

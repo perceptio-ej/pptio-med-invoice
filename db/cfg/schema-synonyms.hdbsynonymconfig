@@ -1,0 +1,32 @@
+{
+  "SCHEMAMGR_MESSAGES": {
+    "target": {
+      "object": "MESSAGES",
+      "schema.configure": "pptio-med-db-schema-mgr-hdi/schema"
+    }
+  },
+  "SCHEMAMGR_EXECUTOR_CONFIG": {
+    "target": {
+      "object": "EXECUTOR_CONFIG",
+      "schema.configure": "pptio-med-db-schema-mgr-hdi/schema"
+    }
+  },
+  "SCHEMAMGR_HOMOLOGATION_CONTEXT": {
+    "target": {
+      "object": "HOMOLOGATION_CONTEXT",
+      "schema.configure": "pptio-med-db-schema-mgr-hdi/schema"
+    }
+  },
+  "SCHEMAMGR_HOMOLOGATION_MAP": {
+    "target": {
+      "object": "HOMOLOGATION_MAP",
+      "schema.configure": "pptio-med-db-schema-mgr-hdi/schema"
+    }
+  },
+  "SCHEMAMGR_V_MESSAGES_PENDING": {
+    "target": {
+      "object": "V_MESSAGES_PENDING",
+      "schema.configure": "pptio-med-db-schema-mgr-hdi/schema"
+    }
+  }
+}

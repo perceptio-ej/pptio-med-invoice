@@ -1,0 +1,7 @@
+{
+  "files.exclude": {
+    "gen": true,
+    "mta_archives": true
+  },
+  "editor.formatOnSave": true
+}

@@ -1,0 +1,19 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug CAP Service",
+      "program": "${workspaceFolder}/node_modules/@sap/cds/bin/serve.js",
+      "args": [
+        "--profile",
+        "development"
+      ],
+      "cwd": "${workspaceFolder}",
+      "skipFiles": [
+        "<node_internals>/**"
+      ]
+    }
+  ]
+}

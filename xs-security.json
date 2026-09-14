@@ -1,0 +1,33 @@
+{
+  "xsappname": "pptio-med-invoice",
+  "tenant-mode": "dedicated",
+  "scopes": [
+    {
+      "name": "$XSAPPNAME.Submit",
+      "description": "Permite registrar facturas médicas y notificaciones de documentos SAP"
+    },
+    {
+      "name": "$XSAPPNAME.Read",
+      "description": "Permite consultar el estado de los mensajes de integración"
+    }
+  ],
+  "attributes": [],
+  "role-templates": [
+    {
+      "name": "InvoiceSubmitter",
+      "description": "Puede registrar facturas médicas y consultar su estado",
+      "scope-references": [
+        "$XSAPPNAME.Submit",
+        "$XSAPPNAME.Read"
+      ]
+    },
+    {
+      "name": "InvoiceReader",
+      "description": "Puede consultar el estado de los mensajes",
+      "scope-references": [
+        "$XSAPPNAME.Read"
+      ]
+    }
+  ],
+  "authorities-inheritance": false
+}

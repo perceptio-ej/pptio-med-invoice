@@ -1,0 +1,14 @@
+{
+  "pptio-med-db-schema-mgr-hdi": {
+    "object_owner": {
+      "container_roles": [
+        "FRAMEWORK_ACCESS_G#"
+      ]
+    },
+    "application_user": {
+      "container_roles": [
+        "FRAMEWORK_ACCESS"
+      ]
+    }
+  }
+}

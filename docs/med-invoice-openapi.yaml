@@ -1,0 +1,535 @@
+openapi: 3.0.3
+info:
+  title: PPTIO Medical Invoice API
+  version: 1.3.0
+  description: API CAP para recibir facturas médicas de TrakCare, aplicar las homologaciones definidas en el DDI y registrar
+    el payload SAP en MESSAGES para su procesamiento asíncrono. Se homologan canal de distribución, oficina de ventas, segmento
+    y línea estratégica. El tipo de servicio solo se transforma cuando existe una equivalencia aprobada para MVKE-MVGR5.
+servers:
+- url: /api/v1
+  description: Servidor actual de SAP BAS o Cloud Foundry
+- url: http://localhost:4004/api/v1
+  description: Ejecución local directa
+paths:
+  /invoiceExt/salesOrder:
+    post:
+      summary: Homologar y registrar una factura para crear el Pedido de Venta SAP
+      operationId: salesOrder
+      security:
+      - bearerAuth: []
+      - basicAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SalesOrderRequest'
+            examples:
+              homologacionesDocumentadas:
+                summary: Homologa AMBULATORIO → 10, PBS → 01 y CV → 03
+                description: salesOffice se envía como código SAP porque el DDI no define la clave de sede TrakCare.
+                value:
+                  metadata:
+                    messageId: MSG-HOMOLOGATION-00001
+                    sentAt: '2026-07-22T10:35:00-05:00'
+                    sourceSystem: TRAKCARE
+                    targetSystem: SAP_SD
+                    version: '1.0'
+                  invoice:
+                    salesOrdType: ZPSA
+                    salesOrg: '1000'
+                    distributionChannel: AMBULATORIO
+                    division: '10'
+                    salesOffice: '1001'
+                    customerCode: 0000048585
+                    episodeId: '4556777'
+                    insurerCode: EPS001
+                    insurerName: SURA EPS S.A.
+                    internalSequence: SEQ-000001
+                    referenceDocument: REF-000123
+                    policyNumber: POL-0001234
+                    admissionDate: '2026-04-20T08:00:00-05:00'
+                    dischargeDate: '2026-04-22T14:00:00-05:00'
+                    userType: CONTRIBUTIVO
+                    stayDays: 2
+                    patientBPNumber: 0000048586
+                    isEmployee: false
+                    items:
+                    - materialCode: 000000000000902012
+                      plantCode: '1000'
+                      benefitCenter: '1001'
+                      unitOfMeasure: UN
+                      quantity: 1
+                      requestingLocation: URGENCIAS
+                      receivingLocation: CARDIOLOGIA PEDIATRICA
+                      unitPrice:
+                        amount: 250000.0
+                        currency: COP
+                      moderatingFee:
+                        amount: 5200.0
+                        currency: COP
+                      copay:
+                        amount: 0.0
+                        currency: COP
+                      segment: PBS
+                      strategicLine: CV
+                      serviceType: CHEQUEO
+                      consortiumDoctorNit: '900123456'
+                    totals:
+                      subtotal: 250000.0
+                      totalDiscounts: 0.0
+                      totalTaxes: 0.0
+                      orderTotal: 250000.0
+              codigosSapDirectos:
+                summary: Los códigos SAP documentados se aceptan sin nueva transformación
+                value:
+                  metadata:
+                    messageId: MSG-SAP-CODES-00001
+                    sentAt: '2026-07-22T10:36:00-05:00'
+                    sourceSystem: TRAKCARE
+                    targetSystem: SAP_SD
+                    version: '1.0'
+                  invoice:
+                    salesOrdType: ZPSA
+                    salesOrg: '1000'
+                    distributionChannel: '10'
+                    division: '10'
+                    salesOffice: '1001'
+                    customerCode: 0000048585
+                    items:
+                    - materialCode: 000000000000902012
+                      plantCode: '1000'
+                      benefitCenter: '1001'
+                      unitOfMeasure: UN
+                      quantity: 1
+                      segment: '01'
+                      strategicLine: '03'
+                      serviceType: CHEQUEO
+                      unitPrice:
+                        amount: 250000.0
+                        currency: COP
+                    totals:
+                      subtotal: 250000.0
+                      totalDiscounts: 0.0
+                      totalTaxes: 0.0
+                      orderTotal: 250000.0
+      responses:
+        '202':
+          description: Factura homologada, registrada y encolada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Acknowledgement'
+        '200':
+          description: Mensaje duplicado; se devuelve el tracking existente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Acknowledgement'
+        '400':
+          description: Error de estructura o validación funcional
+        '401':
+          description: No autenticado
+        '403':
+          description: El Bearer Token no corresponde a un cliente técnico interno autorizado
+        '503':
+          description: Falta un executor activo o un contexto obligatorio de homologación
+        '422':
+          description: No existe una homologación obligatoria para el valor recibido
+      description: Aplica las equivalencias TrakCare → SAP documentadas. Los códigos SAP válidos pueden recibirse directamente.
+        Para salesOffice, cualquier código distinto de 1001, 1002 o 1003 debe existir en HOMOLOGATION_MAP porque el DDI no
+        define las claves de sede de TrakCare.
+  /invoiceExt/documentCreated:
+    post:
+      summary: Registrar el pedido y la factura SAP creados para notificar a TrakCare
+      operationId: documentCreated
+      security:
+      - bearerAuth: []
+      - basicAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DocumentCreatedRequest'
+            example:
+              metadata:
+                messageId: MSG-SAP-20260422-00001
+                sentAt: '2026-04-22T10:40:00-05:00'
+                sourceSystem: SAP_SD
+                targetSystem: TRAKCARE
+                version: '1.0'
+                correlationId: MSG-SALES-ORDER-00001
+              invoiceReference:
+                episodeId: '4556777'
+                invoiceNumber: FV-2026-000123
+              result:
+                salesOrderNumber: '0000012345'
+                sapInvoiceNumber: '9000056789'
+                cufe: 38b060a751ac96384cd9327eb1b1e36a21fdb71114be07434c0cc7bf63f6e1da2
+      responses:
+        '202':
+          description: Notificación recibida y encolada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Acknowledgement'
+        '200':
+          description: Notificación duplicada
+        '400':
+          description: Error de validación
+        '503':
+          description: No existe un executor activo para el tipo de mensaje
+  /invoiceExt/messageStatus:
+    post:
+      summary: Consultar el estado de un mensaje por trackingId
+      operationId: messageStatus
+      security:
+      - bearerAuth: []
+      - basicAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - trackingId
+              properties:
+                trackingId:
+                  type: string
+                  format: uuid
+            example:
+              trackingId: 11111111-1111-4111-8111-111111111111
+      responses:
+        '200':
+          description: Estado del mensaje
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageStatus'
+        '404':
+          description: Mensaje no encontrado
+components:
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+      description: 'Solo para ejecución local con el perfil development.
+
+        Usuario: invoice-client. La contraseña puede dejarse vacía.
+
+        '
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'Bearer Token JWT emitido por la misma instancia XSUAA vinculada al servicio.
+
+        El token debe obtenerse mediante OAuth 2.0 Client Credentials.
+
+        '
+  schemas:
+    MessageMetadata:
+      type: object
+      required:
+      - messageId
+      - sentAt
+      - sourceSystem
+      - targetSystem
+      properties:
+        messageId:
+          type: string
+          maxLength: 100
+        sentAt:
+          type: string
+          format: date-time
+        sourceSystem:
+          type: string
+          maxLength: 20
+        targetSystem:
+          type: string
+          maxLength: 20
+        version:
+          type: string
+          default: '1.0'
+        correlationId:
+          type: string
+          maxLength: 100
+    Money:
+      type: object
+      properties:
+        amount:
+          type: number
+          format: double
+          minimum: 0
+        currency:
+          type: string
+          enum:
+          - COP
+          default: COP
+    InvoiceItem:
+      type: object
+      required:
+      - materialCode
+      - plantCode
+      - unitOfMeasure
+      - quantity
+      properties:
+        materialCode:
+          type: string
+          maxLength: 18
+          description: Número de material SAP (MATNR) de hasta 18 caracteres; el DDI espera este código ya homologado.
+        plantCode:
+          type: string
+          maxLength: 4
+          description: Planta SAP (WERKS).
+        benefitCenter:
+          type: string
+          maxLength: 10
+          description: Centro de beneficio SAP.
+        unitOfMeasure:
+          type: string
+          maxLength: 3
+          description: Unidad de medida SAP (MEINS).
+        quantity:
+          type: number
+          exclusiveMinimum: 0
+        requestingLocation:
+          type: string
+          maxLength: 25
+        receivingLocation:
+          type: string
+          maxLength: 25
+        cupsDescription:
+          type: string
+          maxLength: 120
+        cucomCode:
+          type: string
+          maxLength: 20
+        unitPrice:
+          $ref: '#/components/schemas/Money'
+        moderatingFee:
+          $ref: '#/components/schemas/Money'
+        copay:
+          $ref: '#/components/schemas/Money'
+        segment:
+          type: string
+          maxLength: 20
+          description: Segmento funcional (PBS, PRIVADO, ESTADO, SOCIAL FCI, SOAT, ARL o INTERNACIONAL) o código SAP MVKE-MVGR3
+            01–07.
+        strategicLine:
+          type: string
+          maxLength: 10
+          description: Línea estratégica TX, MD, CV o QX, o código SAP MVKE-MVGR4 01–04.
+        serviceType:
+          type: string
+          maxLength: 20
+          description: Tipo de servicio. Solo se homologa a MVKE-MVGR5 cuando existe una equivalencia aprobada, ya que el
+            DDI no define los códigos destino.
+        consortiumDoctorNit:
+          type: string
+          maxLength: 20
+    InvoiceTotals:
+      type: object
+      required:
+      - subtotal
+      - totalDiscounts
+      - totalTaxes
+      - orderTotal
+      properties:
+        subtotal:
+          type: number
+          minimum: 0
+        totalDiscounts:
+          type: number
+          minimum: 0
+          default: 0
+        totalTaxes:
+          type: number
+          minimum: 0
+          default: 0
+        orderTotal:
+          type: number
+          minimum: 0
+    Invoice:
+      type: object
+      required:
+      - salesOrdType
+      - salesOrg
+      - distributionChannel
+      - division
+      - salesOffice
+      - customerCode
+      - items
+      - totals
+      properties:
+        salesOrdType:
+          type: string
+          enum:
+          - ZPSA
+          - ZPPG
+          - ZPPR
+          - ZPI1
+        salesOrg:
+          type: string
+          maxLength: 4
+        distributionChannel:
+          type: string
+          maxLength: 200
+          description: Área AMBULATORIO, URGENCIAS u HOSPITALARIO, o canal SAP 10, 11 o 12.
+        division:
+          type: string
+          maxLength: 2
+        salesOffice:
+          type: string
+          maxLength: 200
+          description: Código de sede TrakCare configurado en HOMOLOGATION_MAP o código SAP 1001, 1002 o 1003.
+        customerCode:
+          type: string
+          maxLength: 10
+          description: Número de cliente SAP (KUNNR). No se homologa en este API.
+        episodeId:
+          type: string
+          maxLength: 20
+        insurerCode:
+          type: string
+          maxLength: 10
+        insurerName:
+          type: string
+          maxLength: 40
+        internalSequence:
+          type: string
+          maxLength: 12
+        referenceDocument:
+          type: string
+          maxLength: 12
+        policyNumber:
+          type: string
+          maxLength: 12
+        admissionDate:
+          type: string
+          format: date-time
+        dischargeDate:
+          type: string
+          format: date-time
+        userType:
+          type: string
+          maxLength: 16
+        stayDays:
+          type: integer
+          minimum: 0
+        patientBPNumber:
+          type: string
+          maxLength: 10
+        patientName:
+          type: string
+          maxLength: 40
+        patientIdType:
+          type: string
+          maxLength: 3
+        patientIdNumber:
+          type: string
+          maxLength: 20
+        patientAge:
+          type: integer
+          minimum: 0
+        patientSex:
+          type: string
+          maxLength: 1
+        patientPhone:
+          type: string
+          maxLength: 18
+        authorizationNumber:
+          type: string
+          maxLength: 30
+        isEmployee:
+          type: boolean
+          default: false
+        items:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/InvoiceItem'
+        totals:
+          $ref: '#/components/schemas/InvoiceTotals'
+    SalesOrderRequest:
+      type: object
+      required:
+      - metadata
+      - invoice
+      properties:
+        metadata:
+          $ref: '#/components/schemas/MessageMetadata'
+        invoice:
+          $ref: '#/components/schemas/Invoice'
+    DocumentCreatedRequest:
+      type: object
+      required:
+      - metadata
+      - invoiceReference
+      - result
+      properties:
+        metadata:
+          $ref: '#/components/schemas/MessageMetadata'
+        invoiceReference:
+          type: object
+          required:
+          - episodeId
+          - invoiceNumber
+          properties:
+            episodeId:
+              type: string
+            invoiceNumber:
+              type: string
+        result:
+          type: object
+          required:
+          - salesOrderNumber
+          - sapInvoiceNumber
+          properties:
+            salesOrderNumber:
+              type: string
+            sapInvoiceNumber:
+              type: string
+            cufe:
+              type: string
+    Acknowledgement:
+      type: object
+      properties:
+        messageId:
+          type: string
+        trackingId:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum:
+          - RECIBIDO
+          - DUPLICADO
+        timestamp:
+          type: string
+          format: date-time
+        description:
+          type: string
+    MessageStatus:
+      type: object
+      properties:
+        trackingId:
+          type: string
+          format: uuid
+        type:
+          type: string
+        status:
+          type: string
+        attempts:
+          type: integer
+        lastError:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time

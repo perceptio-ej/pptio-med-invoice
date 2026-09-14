@@ -1,0 +1,186 @@
+@host = http://localhost:4004
+@user = invoice-client
+@password =
+
+### Registrar factura aplicando las homologaciones documentadas
+# Transformaciones esperadas dentro de MESSAGES.PAYLOAD:
+#   AMBULATORIO -> 10
+#   PBS         -> 01
+#   CV          -> 03
+# salesOffice se envía como 1001 porque el DDI no define el código fuente de sede TrakCare.
+# serviceType permanece CHEQUEO mientras no exista un TARGET_KEY aprobado para MVKE-MVGR5.
+POST {{host}}/api/v1/invoiceExt/salesOrder
+Authorization: Basic {{user}}:{{password}}
+Content-Type: application/json
+
+{
+  "metadata": {
+    "messageId": "MSG-HOMOLOGATION-00001",
+    "sentAt": "2026-07-22T10:35:00-05:00",
+    "sourceSystem": "TRAKCARE",
+    "targetSystem": "SAP_SD",
+    "version": "1.0"
+  },
+  "invoice": {
+    "salesOrdType": "ZPSA",
+    "salesOrg": "1000",
+    "distributionChannel": "AMBULATORIO",
+    "division": "10",
+    "salesOffice": "1001",
+    "customerCode": "0000048585",
+    "episodeId": "4556777",
+    "insurerCode": "EPS001",
+    "insurerName": "SURA EPS S.A.",
+    "internalSequence": "SEQ-000001",
+    "referenceDocument": "REF-000123",
+    "policyNumber": "POL-0001234",
+    "admissionDate": "2026-04-20T08:00:00-05:00",
+    "dischargeDate": "2026-04-22T14:00:00-05:00",
+    "userType": "CONTRIBUTIVO",
+    "stayDays": 2,
+    "patientBPNumber": "0000048586",
+    "isEmployee": false,
+    "items": [
+      {
+        "materialCode": "000000000000902012",
+        "plantCode": "1000",
+        "benefitCenter": "1001",
+        "unitOfMeasure": "UN",
+        "quantity": 1,
+        "requestingLocation": "URGENCIAS",
+        "receivingLocation": "CARDIOLOGIA PEDIATRICA",
+        "unitPrice": { "amount": 250000.00, "currency": "COP" },
+        "moderatingFee": { "amount": 5200.00, "currency": "COP" },
+        "copay": { "amount": 0.00, "currency": "COP" },
+        "segment": "PBS",
+        "strategicLine": "CV",
+        "serviceType": "CHEQUEO",
+        "consortiumDoctorNit": "900123456"
+      }
+    ],
+    "totals": {
+      "subtotal": 250000.00,
+      "totalDiscounts": 0.00,
+      "totalTaxes": 0.00,
+      "orderTotal": 250000.00
+    }
+  }
+}
+
+### Registrar factura con códigos SAP directos
+# Los códigos SAP documentados se aceptan sin consultar una equivalencia adicional.
+POST {{host}}/api/v1/invoiceExt/salesOrder
+Authorization: Basic {{user}}:{{password}}
+Content-Type: application/json
+
+{
+  "metadata": {
+    "messageId": "MSG-SAP-CODES-00001",
+    "sentAt": "2026-07-22T10:36:00-05:00",
+    "sourceSystem": "TRAKCARE",
+    "targetSystem": "SAP_SD",
+    "version": "1.0"
+  },
+  "invoice": {
+    "salesOrdType": "ZPSA",
+    "salesOrg": "1000",
+    "distributionChannel": "10",
+    "division": "10",
+    "salesOffice": "1001",
+    "customerCode": "0000048585",
+    "items": [
+      {
+        "materialCode": "000000000000902012",
+        "plantCode": "1000",
+        "benefitCenter": "1001",
+        "unitOfMeasure": "UN",
+        "quantity": 1,
+        "segment": "01",
+        "strategicLine": "03",
+        "serviceType": "CHEQUEO",
+        "unitPrice": { "amount": 250000.00, "currency": "COP" }
+      }
+    ],
+    "totals": {
+      "subtotal": 250000.00,
+      "totalDiscounts": 0.00,
+      "totalTaxes": 0.00,
+      "orderTotal": 250000.00
+    }
+  }
+}
+
+### Validar error 422 por código de sede TrakCare no configurado
+# Reemplace CODIGO_SEDE_TRAKCARE_PENDIENTE por un código real solo después de cargarlo
+# en HOMOLOGATION_MAP. Mientras no exista, la respuesta esperada es 422.
+POST {{host}}/api/v1/invoiceExt/salesOrder
+Authorization: Basic {{user}}:{{password}}
+Content-Type: application/json
+
+{
+  "metadata": {
+    "messageId": "MSG-MISSING-SALES-OFFICE-00001",
+    "sentAt": "2026-07-22T10:37:00-05:00",
+    "sourceSystem": "TRAKCARE",
+    "targetSystem": "SAP_SD",
+    "version": "1.0"
+  },
+  "invoice": {
+    "salesOrdType": "ZPSA",
+    "salesOrg": "1000",
+    "distributionChannel": "AMBULATORIO",
+    "division": "10",
+    "salesOffice": "CODIGO_SEDE_TRAKCARE_PENDIENTE",
+    "customerCode": "0000048585",
+    "items": [
+      {
+        "materialCode": "000000000000902012",
+        "plantCode": "1000",
+        "unitOfMeasure": "UN",
+        "quantity": 1,
+        "segment": "PBS",
+        "strategicLine": "CV"
+      }
+    ],
+    "totals": {
+      "subtotal": 250000.00,
+      "totalDiscounts": 0.00,
+      "totalTaxes": 0.00,
+      "orderTotal": 250000.00
+    }
+  }
+}
+
+### Registrar documentos SAP creados
+POST {{host}}/api/v1/invoiceExt/documentCreated
+Authorization: Basic {{user}}:{{password}}
+Content-Type: application/json
+
+{
+  "metadata": {
+    "messageId": "MSG-SAP-20260422-00001",
+    "sentAt": "2026-04-22T10:40:00-05:00",
+    "sourceSystem": "SAP_SD",
+    "targetSystem": "TRAKCARE",
+    "version": "1.0",
+    "correlationId": "MSG-HOMOLOGATION-00001"
+  },
+  "invoiceReference": {
+    "episodeId": "4556777",
+    "invoiceNumber": "FV-2026-000123"
+  },
+  "result": {
+    "salesOrderNumber": "0000012345",
+    "sapInvoiceNumber": "9000056789",
+    "cufe": "38b060a751ac96384cd9327eb1b1e36a21fdb71114be07434c0cc7bf63f6e1da2"
+  }
+}
+
+### Consultar estado: reemplazar con trackingId retornado
+POST {{host}}/api/v1/invoiceExt/messageStatus
+Authorization: Basic {{user}}:{{password}}
+Content-Type: application/json
+
+{
+  "trackingId": "00000000-0000-0000-0000-000000000000"
+}

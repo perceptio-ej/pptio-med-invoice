@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>PPTIO Medical Invoice</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 3rem auto; max-width: 900px; padding: 0 1rem; color: #1f2937; }
+    code { background: #f3f4f6; padding: .15rem .35rem; border-radius: 4px; }
+    li { margin: .65rem 0; }
+    .button { display: inline-block; margin: 1rem .5rem 1rem 0; padding: .75rem 1rem; border-radius: 6px; background: #0a6ed1; color: white; text-decoration: none; font-weight: 600; }
+    .secondary { background: #4b5563; }
+  </style>
+</head>
+<body>
+  <h1>PPTIO Medical Invoice</h1>
+  <p>Servicio CAP para integración de facturación médica TrakCare → SAP S/4HANA.</p>
+
+  <a class="button" href="/swagger/">Abrir Swagger UI</a>
+  <a class="button secondary" href="/swagger/openapi.yaml">Ver OpenAPI YAML</a>
+
+  <ul>
+    <li><code>POST /api/v1/invoiceExt/salesOrder</code></li>
+    <li><code>POST /api/v1/invoiceExt/documentCreated</code></li>
+    <li><code>POST /api/v1/invoiceExt/messageStatus</code></li>
+  </ul>
+</body>
+</html>

@@ -1,0 +1,42 @@
+{
+  "requires": {
+    "db": {
+      "kind": "hana",
+      "vcap": {
+        "label": "hana",
+        "name": "pptio-med-invoice-hdi"
+      }
+    },
+    "auth": {
+      "kind": "xsuaa"
+    }
+  },
+  "build": {
+    "target": "gen",
+    "tasks": [
+      { "for": "hana" },
+      { "for": "nodejs" }
+    ]
+  },
+  "[development]": {
+    "requires": {
+      "db": {
+        "kind": "sqlite",
+        "credentials": {
+          "url": ":memory:"
+        }
+      },
+      "auth": {
+        "kind": "mocked",
+        "users": {
+          "invoice-client": {
+            "roles": ["Submit", "Read"]
+          },
+          "invoice-reader": {
+            "roles": ["Read"]
+          }
+        }
+      }
+    }
+  }
+}

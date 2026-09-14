@@ -1,0 +1,14 @@
+{
+  "name": "pptio-med-invoice-db",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node node_modules/@sap/hdi-deploy/deploy.js"
+  },
+  "dependencies": {
+    "@sap/hdi-deploy": "^4"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
